@@ -10,6 +10,7 @@ import type { PortfolioSummary } from '../../types';
 import { getPortfolioSummary } from '../../services';
 import PositionsList from '../Positions/PositionsList';
 import OrdersList from '../Orders/OrdersList';
+import OrderForm from '../Orders/OrderForm';
 import TradingChart from '../TradingChart/TradingChart';
 
 const { Header, Content } = Layout;
@@ -99,9 +100,12 @@ export default function Dashboard() {
           </Col>
         </Row>
 
-        {/* Trading Chart */}
+        {/* Order Form and Chart */}
         <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
-          <Col span={24}>
+          <Col xs={24} lg={8}>
+            <OrderForm />
+          </Col>
+          <Col xs={24} lg={16}>
             <Card title="Chart" bodyStyle={{ padding: '12px' }}>
               <TradingChart symbol="BTCUSDT" />
             </Card>
