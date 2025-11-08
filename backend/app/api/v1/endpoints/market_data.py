@@ -9,7 +9,7 @@ from fastapi import APIRouter, HTTPException, Query
 
 from app.core import get_logger
 from app.schemas.market_data import KlineData, KlineResponse, TickerResponse
-from app.services.bybit_client import bybit_client
+from app.services.data_service import data_service
 
 logger = get_logger(__name__)
 router = APIRouter(prefix="/market-data", tags=["market-data"])
@@ -30,15 +30,15 @@ async def get_ticker(symbol: str) -> TickerResponse:
         HTTPException: If ticker fetch fails
     """
     try:
-        ticker = await bybit_client.get_ticker(symbol.upper())
+        ticker = await data_service.get_ticker(symbol.upper())
 
         return TickerResponse(
-            symbol=symbol.upper(),
-            last_price=Decimal(ticker["lastPrice"]),
-            high_24h=Decimal(ticker.get("highPrice24h", 0)),
-            low_24h=Decimal(ticker.get("lowPrice24h", 0)),
-            volume_24h=Decimal(ticker.get("volume24h", 0)),
-            price_change_24h=Decimal(ticker.get("price24hPcnt", 0)),
+            symbol=ticker["symbol"],
+            last_price=Decimal(str(ticker["last_price"])),
+            high_24h=Decimal(str(ticker["high_24h"])),
+            low_24h=Decimal(str(ticker["low_24h"])),
+            volume_24h=Decimal(str(ticker["volume_24h"])),
+            price_change_24h=Decimal(str(ticker["price_change_24h"])),
         )
 
     except Exception as e:
@@ -67,7 +67,7 @@ async def get_kline(
         HTTPException: If kline fetch fails
     """
     try:
-        klines = await bybit_client.get_kline(
+        klines = await data_service.get_klines(
             symbol=symbol.upper(),
             interval=interval,
             limit=limit,
@@ -75,12 +75,12 @@ async def get_kline(
 
         kline_data = [
             KlineData(
-                timestamp=int(k[0]),
-                open=Decimal(k[1]),
-                high=Decimal(k[2]),
-                low=Decimal(k[3]),
-                close=Decimal(k[4]),
-                volume=Decimal(k[5]),
+                timestamp=k["timestamp"],
+                open=Decimal(str(k["open"])),
+                high=Decimal(str(k["high"])),
+                low=Decimal(str(k["low"])),
+                close=Decimal(str(k["close"])),
+                volume=Decimal(str(k["volume"])),
             )
             for k in klines
         ]
@@ -94,3 +94,61 @@ async def get_kline(
     except Exception as e:
         logger.error("api_kline_fetch_error", symbol=symbol, error=str(e))
         raise HTTPException(status_code=500, detail=f"Failed to fetch kline: {str(e)}")
+
+
+@router.get("/{symbol}/orderbook")
+async def get_orderbook(
+    symbol: str,
+    depth: int = Query(20, ge=1, le=50, description="Order book depth"),
+) -> dict:
+    """
+    Get order book (bids and asks) for a symbol.
+
+    Args:
+        symbol: Trading pair
+        depth: Number of price levels
+
+    Returns:
+        Order book data
+
+    Raises:
+        HTTPException: If orderbook fetch fails
+    """
+    try:
+        orderbook = await data_service.get_orderbook(symbol.upper(), depth)
+        return orderbook
+
+    except Exception as e:
+        logger.error("api_orderbook_fetch_error", symbol=symbol, error=str(e))
+        raise HTTPException(status_code=500, detail=f"Failed to fetch orderbook: {str(e)}")
+
+
+@router.get("")
+async def get_market_data(
+    symbols: str = Query(None, description="Comma-separated list of symbols"),
+) -> list[dict]:
+    """
+    Get market data for multiple symbols.
+
+    Args:
+        symbols: Comma-separated symbols (e.g., "BTCUSDT,ETHUSDT")
+
+    Returns:
+        List of ticker data
+
+    Raises:
+        HTTPException: If market data fetch fails
+    """
+    try:
+        # Default symbols if none provided
+        symbol_list = ["BTCUSDT", "ETHUSDT", "SOLUSDT"]
+
+        if symbols:
+            symbol_list = [s.strip().upper() for s in symbols.split(",")]
+
+        tickers = await data_service.get_multiple_tickers(symbol_list)
+        return tickers
+
+    except Exception as e:
+        logger.error("api_market_data_fetch_error", error=str(e))
+        raise HTTPException(status_code=500, detail=f"Failed to fetch market data: {str(e)}")
