@@ -4,15 +4,16 @@ Order Model - Represents trading orders in the database.
 
 from datetime import datetime
 from decimal import Decimal
+from enum import Enum as PyEnum
 from typing import Optional
 
-from sqlalchemy import DateTime, Enum, Numeric, String
+from sqlalchemy import DateTime, Numeric, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.database import Base
 
 
-class OrderStatus(str, Enum):
+class OrderStatus(str, PyEnum):
     """Order status enumeration."""
 
     PENDING = "pending"
@@ -23,14 +24,14 @@ class OrderStatus(str, Enum):
     EXPIRED = "expired"
 
 
-class OrderSide(str, Enum):
+class OrderSide(str, PyEnum):
     """Order side enumeration."""
 
     BUY = "buy"
     SELL = "sell"
 
 
-class OrderType(str, Enum):
+class OrderType(str, PyEnum):
     """Order type enumeration."""
 
     MARKET = "market"
