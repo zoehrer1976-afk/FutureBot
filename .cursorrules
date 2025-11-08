@@ -1,0 +1,111 @@
+# FutureBot - Coding Standards & Rules
+
+## General Principles
+- **Single Responsibility**: Each file/class has ONE clear purpose
+- **Max 300 lines per file** - Split if exceeding
+- **Max 50 lines per function** - Refactor if exceeding
+- **DRY (Don't Repeat Yourself)**: Extract reusable code
+- **Explicit over implicit**: Clear naming over clever code
+
+## Python Standards
+- **Style**: Follow PEP 8, use Black formatter (line length: 100)
+- **Type Hints**: MANDATORY for all function signatures
+- **Docstrings**: Google-style for all public functions/classes
+- **Imports**: Group in order: stdlib → third-party → local
+- **Error Handling**: Use custom exceptions, never bare `except:`
+- **Logging**: Use structured logging, never print()
+
+## Naming Conventions
+- **Files**: `snake_case.py` (e.g., `order_executor.py`)
+- **Classes**: `PascalCase` (e.g., `OrderExecutor`)
+- **Functions/Variables**: `snake_case` (e.g., `calculate_position_size`)
+- **Constants**: `UPPER_SNAKE_CASE` (e.g., `MAX_POSITION_SIZE`)
+- **Private**: Prefix with `_` (e.g., `_internal_method`)
+
+## Project Structure Rules
+- **No God Classes**: Split large classes into smaller ones
+- **No God Files**: Max 300 lines, create submodules
+- **Config in files**: Never hardcode, use config/settings
+- **Secrets in env**: NEVER commit API keys, use .env
+- **Tests mirror structure**: `src/module.py` → `tests/test_module.py`
+
+## Architecture Patterns
+- **Services**: Business logic (e.g., `TradingService`)
+- **Repositories**: Data access (e.g., `OrderRepository`)
+- **Models**: Data structures (Pydantic models)
+- **Schemas**: API request/response (Pydantic)
+- **Utils**: Pure functions, no side effects
+- **Factories**: Create complex objects
+
+## FastAPI Standards
+- **Routers**: Max 200 lines, split by domain (e.g., `/orders`, `/strategies`)
+- **Dependencies**: Use Depends() for DI
+- **Validation**: Pydantic models for all input/output
+- **Error Handling**: Custom exception handlers
+- **Versioning**: `/api/v1/` prefix
+
+## Database Standards
+- **ORM**: SQLAlchemy with async support
+- **Migrations**: Alembic for schema changes
+- **Indexes**: Add for frequently queried fields
+- **Transactions**: Explicit transaction boundaries
+- **Connection Pooling**: Configure properly
+
+## Frontend Standards (React)
+- **Components**: Max 200 lines, split into smaller ones
+- **Hooks**: Custom hooks for reusable logic
+- **State**: Context API or Zustand (not Redux initially)
+- **Styling**: CSS Modules or Styled Components
+- **File Structure**: Feature-based folders
+
+## Testing Requirements
+- **Unit Tests**: All business logic functions
+- **Integration Tests**: API endpoints, DB interactions
+- **Coverage**: Aim for >80%
+- **Fixtures**: Reuse test data via pytest fixtures
+- **Mocking**: Mock external APIs (Bybit)
+
+## Git Workflow
+- **Branches**: `feature/`, `bugfix/`, `hotfix/` prefixes
+- **Commits**: Conventional commits (feat:, fix:, docs:, etc.)
+- **PRs**: Small, focused changes
+- **No force push** to main/develop
+
+## Security Rules
+- **Input Validation**: Validate ALL external input
+- **SQL Injection**: Use parameterized queries only
+- **API Keys**: Environment variables + secrets manager
+- **Rate Limiting**: Implement on all endpoints
+- **Authentication**: JWT tokens, no plain passwords
+
+## Performance Guidelines
+- **Caching**: Redis for frequently accessed data
+- **Async**: Use async/await for I/O operations
+- **Batch Operations**: Bulk inserts/updates where possible
+- **Indexing**: Database indexes for queries
+- **Connection Reuse**: HTTP session pooling
+
+## Documentation
+- **README**: Each module has its own README
+- **API Docs**: Auto-generated via FastAPI
+- **Inline Comments**: Only for "why", not "what"
+- **Architecture Docs**: Keep updated in `/docs`
+
+## Code Review Checklist
+- [ ] Type hints present?
+- [ ] Tests added/updated?
+- [ ] No hardcoded values?
+- [ ] Error handling present?
+- [ ] Logging added?
+- [ ] Documentation updated?
+- [ ] No secrets committed?
+- [ ] File under 300 lines?
+
+## AI Assistant Instructions
+When generating code:
+1. Ask clarifying questions BEFORE generating
+2. Generate small, focused modules
+3. Include type hints and docstrings
+4. Add error handling and logging
+5. Suggest tests alongside code
+6. Point out potential issues proactively
